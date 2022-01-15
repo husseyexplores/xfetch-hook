@@ -6,11 +6,11 @@ export default function startInterceptingFetch({
 } = {}) {
   if (namespace == null) namespace = globalThis || window
   if (typeof namespace != 'object') {
-    throw new Error('[xfetch-middleware] - `namespace` should be an object')
+    throw new Error('[fetch-xhr-middleware] - `namespace` should be an object')
   }
 
   if (typeof originalFetch !== 'function') {
-    throw new Error('[xfetch-middleware] - `fetch` should be a function')
+    throw new Error('[fetch-xhr-middleware] - `fetch` should be a function')
   }
 
   // Already listening?

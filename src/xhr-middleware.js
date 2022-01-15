@@ -5,7 +5,7 @@ export default function startInterceptingXhr({
 } = {}) {
   if (namespace == null) namespace = globalThis || window
   if (typeof namespace != 'object') {
-    throw new Error('[xfetch-middleware] - `namespace` should be an object')
+    throw new Error('[fetch-xhr-middleware] - `namespace` should be an object')
   }
 
   // create XMLHttpRequest proxy object
@@ -13,7 +13,7 @@ export default function startInterceptingXhr({
 
   if (typeof OriginalXMLHttpRequest !== 'function') {
     throw new Error(
-      '[xfetch-middleware] - `XMLHttpRequest` should be a function.'
+      '[fetch-xhr-middleware] - `XMLHttpRequest` should be a function.'
     )
   }
 
@@ -43,7 +43,10 @@ export default function startInterceptingXhr({
 
           listeners.forEach(f => f.call(self, self))
         } catch (e) {
-          console.warn('Error in proxied XMLHTTP', e.message)
+          console.warn(
+            'Error in proxied fetch-xhr-middleware package',
+            e.message
+          )
         }
       }
 
