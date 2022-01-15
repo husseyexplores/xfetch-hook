@@ -1,6 +1,6 @@
 {
-  "name": "fetch-xhr-middleware",
-  "version": "0.0.0-alpha.1",
+  "name": "xfetch-hook",
+  "version": "0.0.1-alpha.1",
   "description": "fetch/xhr middlewares made easy!",
   "main": "src/main.js",
   "type": "module",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/husseyexplores/fetch-xhr-middleware.git"
+    "url": "git+https://github.com/husseyexplores/xfetch-hook.git"
   },
   "keywords": [
     "fetch",
@@ -27,9 +27,9 @@
   "author": "husseyexplores",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/husseyexplores/fetch-xhr-middleware/issues"
+    "url": "https://github.com/husseyexplores/xfetch-hook/issues"
   },
-  "homepage": "https://github.com/husseyexplores/fetch-xhr-middleware#readme",
+  "homepage": "https://github.com/husseyexplores/xfetch-hook#readme",
   "devDependencies": {
     "eslint": "^8.6.0",
     "eslint-config-prettier": "^8.3.0",
