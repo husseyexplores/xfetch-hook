@@ -1,0 +1,41 @@
+{
+  "name": "xfetch-middleware",
+  "version": "0.0.0-alpha.0",
+  "description": "fetch/xhr middlewares made easy!",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "build": "rollup -c --compact --environment INCLUDE_DEPS,BUILD:production",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/husseyexplores/xfetch-middleware.git"
+  },
+  "keywords": [
+    "fetch",
+    "xhr",
+    "XMLHttpRequest",
+    "fetch-interceptor",
+    "fetch-middleware",
+    "fetch-listener",
+    "xhr-interceptor",
+    "xhr-middleware",
+    "xhr-listener"
+  ],
+  "author": "husseyexplores",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/husseyexplores/xfetch-middleware/issues"
+  },
+  "homepage": "https://github.com/husseyexplores/xfetch-middleware#readme",
+  "devDependencies": {
+    "eslint": "^8.6.0",
+    "eslint-config-prettier": "^8.3.0",
+    "npm": "^8.3.1",
+    "prettier": "^2.5.1",
+    "rollup": "^2.64.0",
+    "rollup-plugin-terser": "^7.0.2"
+  }
+}
