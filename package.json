@@ -1,8 +1,8 @@
 {
   "name": "fetch-xhr-middleware",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0-alpha.1",
   "description": "fetch/xhr middlewares made easy!",
-  "main": "src/index.js",
+  "main": "src/main.js",
   "type": "module",
   "scripts": {
     "dev": "node src/index.js",
