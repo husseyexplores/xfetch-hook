@@ -8,7 +8,7 @@ Extremly simple way to:
 
 ## Usage:
 You can use this with or without ESM. Can use `fetch` or `XMLHttpRequest` or both at the same time.
-Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook/dist/):
+Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook@latest/dist/):
 
 **ESM**
 ```html
@@ -53,9 +53,9 @@ Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook/dist/
 </script>
 ```
 
-**Fetch Middleware**
+### Fetch Middleware
 Once the hook is initialized, `onRequest` function will be exposed on the interface.
-It expects a middleware function which is called before any fetch request is called.
+It expects a middleware function which is called before any fetch request is made, giving you a chance to listen or intercept it.
 
 ```js
 async function middleware({ request, url, headers }) {
@@ -126,14 +126,15 @@ async function middleware({ method, url, body, headers }) {
 Hooks/middlewares are called in the order they're registered. If any middleware modifies the data
 (`request`, `response`, `as`, `method`, `url`, `body`, `transformResponse`), the next middleware will receive the modified data
 
-**Working example**
-Shopify has `/cart.js`/`cart.json` endpoints which returns current cart content in JSON
-In this example, we modify the response that we get back from Shopify
+### Working example
+Shopify has `/cart.js`/`cart.json` endpoints which returns current cart content as JSON.
+In this example, we want to hide particular items in the cart.
 
 ```html
 <script type="module">
   import fetchHook from 'https://unpkg.com/browse/xfetch-hook@latest/dist/fetch.module.min.js'
 
+  // Initialize once
   fetchHook()
 
 
@@ -141,13 +142,14 @@ In this example, we modify the response that we get back from Shopify
   const unsubscribe1 = fetch.onRequest(async ({ url, request }) => {
     const isCartRequest = /\/cart.js(on)?/.test(url.pathname)
 
+    // If it's not `/cart.json` request, don't do anything
     if (!isCartRequest) return
 
     // we need to listen on only GET requests
     if (request.method  !== 'GET') return
 
     return {
-      // `cart` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
+      // `cartJson` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
       // original caller will receive the modified data
       transformResponse: cartJson => {
         cartJson.items = cartJson.items.filter(item => item.product_type === 'HIDDEN')
@@ -178,7 +180,6 @@ In this example, we modify the response that we get back from Shopify
       }
     }
   })
-
-  // `unsubscribe` is a function that can be called later to stop this hook
 </script>
 ```
+Each `fetch.onRequest` middleware registration returns an `unsubscribe` function. Hint hint, this `unsubscribe` function's job is to remove the registered middleware.
