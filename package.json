@@ -1,14 +1,12 @@
 {
   "name": "xfetch-hook",
-  "version": "0.0.1-alpha.2",
+  "version": "0.0.2-alpha.0",
   "description": "fetch/xhr middlewares made easy!",
   "main": "src/main.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/index.js",
     "esbuild": "esbuild",
     "build": "rimraf ./dist && node esbuild.js",
-    "publish": "npm run build && npm publish",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -39,8 +37,5 @@
     "npm": "^8.3.1",
     "prettier": "^2.5.1",
     "rimraf": "^3.0.2"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
   }
 }
