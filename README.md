@@ -7,10 +7,18 @@ Extremly simple way to:
 - Listen on a fetch/XHR request
 
 ## Usage:
-You can use this with or without ESM. Can use `fetch` or `XMLHttpRequest` or both at the same time.
+Can be used with or without ES modules. Use only `fetch` or `XMLHttpRequest` or both at the same time.
 Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook@latest/dist/):
 
-**ESM**
+Or install it via npm:
+```
+npm install xfetch-hook@latest
+```
+```javascript
+import { fetchHook, xhrHook } from 'xfetch-hook'
+```
+
+**ES modules via CDN**
 ```html
 <script type="module">
   // Import both, fetch and xhr
@@ -26,7 +34,7 @@ Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook@lates
   fetchHook()
   xhrHook()
 
-  // Start using by registering your middleware functions!
+  // Start using by registering your middleware functions! (See the middleware functions signature below)
   fetch.onRequest(fetchMiddleware1)
   fetch.onRequest(fetchMiddleware2)
   XMLHttpRequest.onRequest(xhrMiddleware1)
@@ -35,7 +43,7 @@ Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook@lates
 </script>
 ```
 
-**NON-ESM**
+**NON-ESM/Global export via CDN**
 ```html
 <!-- Load the script -->
 <script src="https://unpkg.com/browse/xfetch-hook@latest/dist/fetch-xhr.module.min.js">
@@ -127,7 +135,11 @@ Hooks/middlewares are called in the order they're registered. If any middleware 
 (`request`, `response`, `as`, `method`, `url`, `body`, `transformResponse`), the next middleware will receive the modified data
 
 ### Working example
-Shopify has `/cart.js`/`cart.json` endpoints which returns current cart content as JSON.
+Shopify provides the following endpoings for cart:
+- GET `/cart.js` or `/cart.json`
+- POST `/cart/update.js` and `/cart/change.js`
+
+These endpoints return cart data in JSON format.
 In this example, we want to hide particular items in the cart.
 
 ```html
@@ -150,7 +162,7 @@ In this example, we want to hide particular items in the cart.
 
     return {
       // `cartJson` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
-      // original caller will receive the modified data
+      // so that original caller will receive the modified data
       transformResponse: cartJson => {
         cartJson.items = cartJson.items.filter(item => item.product_type === 'HIDDEN')
         return cartJson
@@ -161,22 +173,22 @@ In this example, we want to hide particular items in the cart.
   // Hook for /cart/change.js and /cart/update.js
   const unsubscribe2 = fetch.onRequest(async ({ url, request }) => {
     const isCartChangeOrUpdateRequest = /\/cart\/(change|update).js(on)?/.test(url.pathname)
-
     if (!isCartChangeOrUpdateRequest) return
 
     return {
-      // `cart` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
-      // original caller will receive the modified data
+      // `cartJson` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
+      // so that original caller will receive the modified data
       transformResponse: cartJson => {
         cartJson.items = cartJson.items.filter(item => item.product_type === 'HIDDEN')
         return cartJson
       },
 
-      // Cart is updated,
+      // Since this is a POST request, it means the cart has been updated
+      // We can listen for the latest data, and react to it
       as: 'json',
       listen: (response, cartJson) => {
         // `cartJson` is the trasnfromed cart object
-        console.log('Cart has been updated.', cartJson)
+        console.log('Cart has been updated. Time to update our UI', cartJson)
       }
     }
   })
