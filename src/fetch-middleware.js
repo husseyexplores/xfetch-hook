@@ -1,6 +1,6 @@
-import { parseUrl, parseHeaders } from './utils.js'
+import { parseUrl, parseHeaders, transform } from './utils.js'
 
-export default function startInterceptingFetch({
+export default function startProxingFetch({
   namespace = globalThis || window,
   fetch: originalFetch = namespace.fetch,
 } = {}) {
@@ -22,10 +22,12 @@ export default function startInterceptingFetch({
 
   // -------------
 
-  const middlewares = []
+  let middlewares = []
 
-  async function interceptedFetch(...args) {
+  async function proxiedFetch(...args) {
     const listeners = []
+    const transformers = []
+
     let request = new Request(...args)
     let response = null
     let parseAs = null
@@ -63,16 +65,44 @@ export default function startInterceptingFetch({
 
       if (typeof intercept.as === 'string') {
         parseAs = intercept.as
+
+        if (typeof intercept.transformResponse === 'function') {
+          transformers.push(intercept.transformResponse)
+        }
       }
     }
 
+    /**
+     *
+     * @param {Response} res
+     * @returns Response
+     */
     async function handleResponse(res) {
-      let parseResponse = parseAs && typeof res[parseAs] === 'function'
+      let transformedResponse = res
+
+      let canParseResponse = parseAs && typeof res[parseAs] === 'function'
+      let responseData = await (canParseResponse && res.clone()[parseAs]())
+
+      if (transformers.length > 0) {
+        let transformedResponseData = transform(transformers, responseData)
+        if (typeof transformedResponseData !== 'string') {
+          transformedResponseData = JSON.stringify(transformedResponseData)
+        }
+
+        transformedResponse = new Response(transformedResponseData, {
+          status: res.status,
+          statusText: res.statusText,
+          headers: res.headers,
+        })
+      }
+
       listeners.forEach(fn => {
-        const cloned = res.clone()
-        parseResponse ? cloned[parseAs]().then(fn) : fn(cloned)
+        const cloned = transformedResponse.clone()
+        canParseResponse
+          ? cloned[parseAs]().then(fn.bind(null, cloned))
+          : fn(cloned)
       })
-      return res
+      return transformedResponse
     }
 
     if (response) {
@@ -82,35 +112,36 @@ export default function startInterceptingFetch({
     return originalFetch(request).then(handleResponse)
   }
 
-  // Make the interceptedFetch function name same as the original function name
-  // So that `fetch.name` returns `fetch` instead of `interceptedFetch`
-  Object.defineProperty(interceptedFetch, 'name', {
+  // Make the proxiedFetch function name same as the original function name
+  // So that `fetch.name` returns `fetch` instead of `proxiedFetch`
+  Object.defineProperty(proxiedFetch, 'name', {
     value: FETCH_NAME,
     configurable: true,
   })
 
-  function startIntercepting() {
-    namespace[FETCH_NAME] = interceptedFetch
+  function startProxying() {
+    namespace[FETCH_NAME] = proxiedFetch
   }
-  startIntercepting()
+  startProxying()
 
-  function stopIntercepting() {
+  function stopProxying() {
     namespace[FETCH_NAME] = originalFetch
   }
 
   function unsubscribeMiddleware(middlewareFn) {
-    middlewares.filter(x => x !== middlewareFn)
+    middlewares = middlewares.filter(x => x !== middlewareFn)
   }
   function subscribeMiddleware(middlewareFn) {
     middlewares.push(middlewareFn)
   }
 
-  interceptedFetch.stopIntercepting = stopIntercepting
-  interceptedFetch.onRequest = function onRequest(middlewareFn) {
-    if (typeof middlewareFn !== 'function')
+  proxiedFetch.stopProxying = stopProxying
+  proxiedFetch.onRequest = function onRequest(middlewareFn) {
+    if (typeof middlewareFn !== 'function') {
       throw new Error(
         '[xfetch-hook] - `onRequest`: argument must be a function'
       )
+    }
 
     const unsubscribe = () => unsubscribeMiddleware(middlewareFn)
 
@@ -120,5 +151,5 @@ export default function startInterceptingFetch({
     return unsubscribe
   }
 
-  return stopIntercepting
+  return stopProxying
 }

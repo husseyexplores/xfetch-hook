@@ -1,6 +1,6 @@
 import { absoluteUrl, parseHeaders, transform } from './utils.js'
 
-export default function startInterceptingXhr({
+export default function startProxyingXhr({
   namespace = globalThis || window,
 } = {}) {
   if (namespace == null) namespace = globalThis || window
@@ -15,7 +15,7 @@ export default function startInterceptingXhr({
     throw new Error('[xfetch-hook] - `XMLHttpRequest` should be a function.')
   }
 
-  const middlewares = []
+  let middlewares = []
 
   // Proxy
   function ProxiedXMLHttpRequest() {
@@ -33,13 +33,17 @@ export default function startInterceptingXhr({
         try {
           self.response =
             _transformedResponse ||
-            (_transformedResponse = transform(transformers, actual.response))
+            (_transformedResponse = transform(
+              transformers,
+              actual.response,
+              self
+            ))
 
           if (resType === '' || resType === 'text') {
             self.responseText = actual.responseText
           }
 
-          listeners.forEach(f => f.call(self, self))
+          listeners.forEach(f => f.call(self, self.response, self))
         } catch (e) {
           console.warn('Error in proxied xfetch-hook package', e.message)
         }
@@ -110,7 +114,7 @@ export default function startInterceptingXhr({
       async = _async !== false
       user = _user
       pw = _pw
-      actual.open(method, url, async, user, pw)
+      actual.open(method, url.toString(), async, user, pw)
     }
 
     self.send = async function send(_body) {
@@ -151,30 +155,30 @@ export default function startInterceptingXhr({
     }
   }
 
-  // Make the interceptedFetch function name same as the original function name
-  // So that `fetch.name` returns `fetch` instead of `interceptedFetch`
+  // Make the ProxiedXMLHttpRequest function name same as the original function name
+  // So that `XMLHttpRequest.name` returns `XMLHttpRequest` instead of `ProxiedXMLHttpRequest`
   Object.defineProperty(ProxiedXMLHttpRequest, 'name', {
     value: 'XMLHttpRequest',
     configurable: true,
   })
 
-  function startIntercepting() {
+  function startProxying() {
     namespace['XMLHttpRequest'] = ProxiedXMLHttpRequest
   }
-  startIntercepting()
+  startProxying()
 
-  function stopIntercepting() {
+  function stopProxying() {
     namespace['XMLHttpRequest'] = OriginalXMLHttpRequest
   }
 
   function unsubscribeMiddleware(middlewareFn) {
-    middlewares.filter(x => x !== middlewareFn)
+    middlewares = middlewares.filter(x => x !== middlewareFn)
   }
   function subscribeMiddleware(middlewareFn) {
     middlewares.push(middlewareFn)
   }
 
-  ProxiedXMLHttpRequest.stopIntercepting = stopIntercepting
+  ProxiedXMLHttpRequest.stopProxying = stopProxying
   ProxiedXMLHttpRequest.onRequest = function onRequest(middlewareFn) {
     if (typeof middlewareFn !== 'function')
       throw new Error('[onRequest] - Argument must be a function')
@@ -187,5 +191,5 @@ export default function startInterceptingXhr({
     return unsubscribe
   }
 
-  return stopIntercepting
+  return stopProxying
 }

@@ -1,2 +1,2 @@
-export { default as fetchMiddleware } from './fetch-middleware.js'
-export { default as xhrMiddleware } from './xhr-middleware.js'
+export { default as fetchHook } from './fetch-middleware.js'
+export { default as xhrHook } from './xhr-middleware.js'

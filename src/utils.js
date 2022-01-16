@@ -17,5 +17,5 @@ export const parseHeaders = headers =>
 
 export const parseUrl = url => new URL(url)
 
-export const transform = (transformers, value) =>
-  transformers.reduce((x, f) => f(x), value)
+export const transform = (transformers, value, ctx = null) =>
+  transformers.reduce((x, f) => f.call(ctx, x), value)
