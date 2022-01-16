@@ -93,6 +93,7 @@ export default function startProxyingXhr({
       'addEventListener',
       'abort',
       'getAllkeyResponseHeaders',
+      'getAllResponseHeaders',
       'getResponseHeader',
       'overrideMimeType',
     ].forEach(function (key) {
