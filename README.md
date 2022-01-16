@@ -14,13 +14,13 @@ Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook/dist/
 ```html
 <script type="module">
   // Import both, fetch and xhr
-  import * as xfetch from 'https://unpkg.com/xfetch-hook/dist/fetch-xhr.module.min.js'
+  import * as xfetch from 'https://unpkg.com/browse/xfetch-hook@latest/dist/fetch-xhr.module.min.js'
 
   const { fetchHook, xhrHook } = xfetch
 
   // Or only import what's needed
-  import fetchHook from 'https://unpkg.com/xfetch-hook/dist/fetch.module.min.js'
-  import xhrHook from 'https://unpkg.com/xfetch-hook/dist/xhr.module.min.js'
+  import fetchHook from 'https://unpkg.com/browse/xfetch-hook@latest/dist/fetch.module.min.js'
+  import xhrHook from 'https://unpkg.com/browse/xfetch-hook@latest/dist/xhr.module.min.js'
 
   // Initialize once
   fetchHook()
@@ -38,7 +38,7 @@ Check all the available [CDN exports](https://unpkg.com/browse/xfetch-hook/dist/
 **NON-ESM**
 ```html
 <!-- Load the script -->
-<script src="https://unpkg.com/xfetch-hook/dist/fetch-xhr.module.min.js">
+<script src="https://unpkg.com/browse/xfetch-hook@latest/dist/fetch-xhr.module.min.js">
 </script>
 
 <!-- `xfetch` is now accessible -->
@@ -132,7 +132,7 @@ In this example, we modify the response that we get back from Shopify
 
 ```html
 <script type="module">
-  import fetchHook from 'https://unpkg.com/xfetch-hook/dist/fetch.module.min.js'
+  import fetchHook from 'https://unpkg.com/browse/xfetch-hook@latest/dist/fetch.module.min.js'
 
   fetchHook()
 
