@@ -1,6 +1,6 @@
 {
   "name": "xfetch-hook",
-  "version": "0.0.2-alpha.2",
+  "version": "0.0.1",
   "description": "fetch/xhr middlewares made easy!",
   "main": "src/main.js",
   "type": "module",
