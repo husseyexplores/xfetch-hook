@@ -148,11 +148,12 @@ export default function startProxyingXhr({
 
         // Initiate actual request
         actual.open(method, url, async, user, pw)
-        for (const tuple in headers.entries()) {
+        for (const tuple of headers.entries()) {
           actual.setRequestHeader(tuple[0], tuple[1])
         }
-        actual.send(body)
       }
+
+      actual.send(body)
     }
   }
 
