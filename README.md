@@ -1,7 +1,5 @@
 # Fetch/XHR Middleware
 
-**Alpha release - API may change**
-
 Extremly simple way to:
 - Intercept a fetch/XHR request
 - Listen on a fetch/XHR request
@@ -66,6 +64,7 @@ Once the hook is initialized, `onRequest` function will be exposed on the interf
 It expects a middleware function which is called before any fetch request is made, giving you a chance to listen or intercept it.
 
 ```js
+// Fetch middleware function signature
 async function middleware({ request, url, headers }) {
   // Return null/falsy if this request does not need to be hooked
   return null
@@ -99,9 +98,10 @@ async function middleware({ request, url, headers }) {
 **XMLHttpRequest Middleware**
 
 ```js
+// XHR middleware function signature
 async function middleware({ method, url, body, headers }) {
 
-  // Overrite any of the paramer
+  // Override any of the paramer
   return {
     // Optional - override the method of xhr. (GET, POST, PUT, etc)
     method?: 'String',
@@ -152,15 +152,17 @@ In this example, we want to hide particular items in the cart.
 
   // Hook for GET: '/cart.json'
   const unsubscribe1 = fetch.onRequest(async ({ url, request }) => {
-    const isCartRequest = /\/cart.js(on)?/.test(url.pathname)
-
-    // If it's not `/cart.json` request, don't do anything
-    if (!isCartRequest) return
-
     // we need to listen on only GET requests
     if (request.method  !== 'GET') return
 
+    const isCartRequest = url.pathname === '/cart.json' || url.pathname === '/cart.js'
+
+    // If it's not a cart request, don't do anything
+    if (!isCartRequest) return
+
     return {
+      as: 'json',
+
       // `cartJson` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
       // so that original caller will receive the modified data
       transformResponse: cartJson => {
@@ -176,6 +178,8 @@ In this example, we want to hide particular items in the cart.
     if (!isCartChangeOrUpdateRequest) return
 
     return {
+      as: 'json',
+
       // `cartJson` has `items` array. We will filter out all the items that have 'HIDDEN' product_type
       // so that original caller will receive the modified data
       transformResponse: cartJson => {
@@ -185,13 +189,16 @@ In this example, we want to hide particular items in the cart.
 
       // Since this is a POST request, it means the cart has been updated
       // We can listen for the latest data, and react to it
-      as: 'json',
       listen: (response, cartJson) => {
         // `cartJson` is the trasnfromed cart object
         console.log('Cart has been updated. Time to update our UI', cartJson)
+
+        // Invoke your logic
+        // rerenderCart(cartJson)
       }
     }
   })
 </script>
 ```
+
 Each `fetch.onRequest` middleware registration returns an `unsubscribe` function. Hint hint, this `unsubscribe` function's job is to remove the registered middleware.
